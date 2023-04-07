@@ -12,7 +12,16 @@
         android:theme="@style/Theme.QrApp"
         tools:targetApi="31">
         <activity
+            android:name=".ScannerActivity"
+            android:label="@string/scan"
+            android:exported="false" />
+        <activity
+            android:name=".GenerationActivity"
+            android:label="@string/generate"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
+            android:label="@string/home"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
