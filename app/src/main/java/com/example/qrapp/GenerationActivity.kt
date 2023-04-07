@@ -1,8 +1,13 @@
 package com.example.qrapp
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.EditText
+import android.widget.ImageView
+import androidmads.library.qrgenearator.QRGContents
+import androidmads.library.qrgenearator.QRGEncoder
+import androidx.appcompat.app.AppCompatActivity
+import java.lang.Integer.min
 
 class GenerationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -11,6 +16,14 @@ class GenerationActivity : AppCompatActivity() {
     }
 
     fun onGenerate(@Suppress("UNUSED_PARAMETER") view: View) {
-        TODO("Implement onGenerate()")
+        val sourceEdit = findViewById<EditText>(R.id.sourceEdit)
+        val data = sourceEdit.text.toString()
+        val generatedImageView = findViewById<ImageView>(R.id.generatedImageView)
+        val width = generatedImageView.width
+        val height = generatedImageView.height
+        val dimension = 3 * min(width, height) / 4
+        val encoder = QRGEncoder(data, QRGContents.Type.TEXT, dimension)
+        val image = encoder.getBitmap(0)
+        generatedImageView.setImageBitmap(image)
     }
 }
