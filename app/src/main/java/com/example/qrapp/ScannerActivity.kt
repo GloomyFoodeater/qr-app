@@ -42,6 +42,11 @@ class ScannerActivity : AppCompatActivity() {
         actionBtn = findViewById(R.id.actionBtn)
         camView = findViewById(R.id.camView)
 
+        if (savedInstanceState != null) {
+            val data = savedInstanceState.getString("data")
+            if (data != null) setScanResult(data)
+        }
+
         camView.isPlaySound = false
         camView.scannerViewEventListener = object : ScannerLiveView.ScannerViewEventListener {
             override fun onScannerStarted(scanner: ScannerLiveView?) {}
@@ -58,19 +63,8 @@ class ScannerActivity : AppCompatActivity() {
 
             override fun onCodeScanned(data: String?) {
                 if (data == null) return
-                resultWrapper.visibility = VISIBLE
-                resultTextView.text = data
-
-                if (URLUtil.isValidUrl(data)) {
-                    actionBtn.text = resources.getString(R.string.globe)
-                    contentType = HYPER_LINK
-                } else {
-                    actionBtn.text = resources.getString(R.string.clipboard)
-                    contentType = PLAIN_TEXT
-                }
-
+                setScanResult(data)
             }
-
         }
     }
 
@@ -85,6 +79,11 @@ class ScannerActivity : AppCompatActivity() {
         super.onPause()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("data", resultTextView.text.toString())
+    }
+
     private fun hasPermissions(): Boolean {
         val cameraPermission = ContextCompat.checkSelfPermission(applicationContext, CAMERA)
         val vibratePermission = ContextCompat.checkSelfPermission(applicationContext, VIBRATE)
@@ -95,6 +94,18 @@ class ScannerActivity : AppCompatActivity() {
     private fun requestPermissions() {
         val permissionRequestCode = 200
         ActivityCompat.requestPermissions(this, arrayOf(CAMERA, VIBRATE), permissionRequestCode)
+    }
+
+    private fun setScanResult(data: String) {
+        resultWrapper.visibility = VISIBLE
+        resultTextView.text = data
+        if (URLUtil.isValidUrl(data)) {
+            actionBtn.text = resources.getString(R.string.globe)
+            contentType = HYPER_LINK
+        } else {
+            actionBtn.text = resources.getString(R.string.clipboard)
+            contentType = PLAIN_TEXT
+        }
     }
 
     override fun onRequestPermissionsResult(
