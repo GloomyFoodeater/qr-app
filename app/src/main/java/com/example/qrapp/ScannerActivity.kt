@@ -2,16 +2,34 @@ package com.example.qrapp
 
 import android.Manifest.permission.CAMERA
 import android.Manifest.permission.VIBRATE
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.view.View
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
+import android.webkit.URLUtil
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.qrapp.ContentType.*
 import eu.livotov.labs.android.camview.ScannerLiveView
+
 
 class ScannerActivity : AppCompatActivity() {
     private lateinit var camView: ScannerLiveView
+    private lateinit var resultWrapper: ConstraintLayout
+    private lateinit var resultTextView: TextView
+    private lateinit var actionBtn: Button
+    private lateinit var contentType: ContentType
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,7 +37,11 @@ class ScannerActivity : AppCompatActivity() {
 
         if (!hasPermissions()) requestPermissions()
 
+        resultWrapper = findViewById(R.id.resultWrapper)
+        resultTextView = findViewById(R.id.resultTextView)
+        actionBtn = findViewById(R.id.actionBtn)
         camView = findViewById(R.id.camView)
+
         camView.isPlaySound = false
         camView.scannerViewEventListener = object : ScannerLiveView.ScannerViewEventListener {
             override fun onScannerStarted(scanner: ScannerLiveView?) {}
@@ -35,7 +57,18 @@ class ScannerActivity : AppCompatActivity() {
             }
 
             override fun onCodeScanned(data: String?) {
-                Toast.makeText(this@ScannerActivity, data, Toast.LENGTH_SHORT).show()
+                if (data == null) return
+                resultWrapper.visibility = VISIBLE
+                resultTextView.text = data
+
+                if (URLUtil.isValidUrl(data)) {
+                    actionBtn.text = resources.getString(R.string.globe)
+                    contentType = HYPER_LINK
+                } else {
+                    actionBtn.text = resources.getString(R.string.clipboard)
+                    contentType = PLAIN_TEXT
+                }
+
             }
 
         }
@@ -79,6 +112,25 @@ class ScannerActivity : AppCompatActivity() {
                     "Permission Denied \n You cannot use app without providing permission",
                     Toast.LENGTH_SHORT
                 ).show()
+            }
+        }
+    }
+
+    fun onClose(@Suppress("UNUSED_PARAMETER") view: View) {
+        resultWrapper.visibility = INVISIBLE
+    }
+
+    fun onAction(@Suppress("UNUSED_PARAMETER") view: View) {
+        val data = resultTextView.text.toString()
+        when (contentType) {
+            PLAIN_TEXT -> {
+                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("", data)
+                clipboard.setPrimaryClip(clip)
+            }
+            HYPER_LINK -> {
+                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(data))
+                startActivity(browserIntent)
             }
         }
     }
