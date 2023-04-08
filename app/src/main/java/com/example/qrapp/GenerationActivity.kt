@@ -1,14 +1,16 @@
 package com.example.qrapp
 
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.widget.EditText
 import android.widget.ImageView
+import androidmads.library.qrgenearator.QRGContents
+import androidmads.library.qrgenearator.QRGEncoder
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import com.example.qrapp.QrConverter.Companion as Qr
 
 class GenerationActivity : AppCompatActivity() {
     private lateinit var qrEdit: EditText
@@ -30,17 +32,22 @@ class GenerationActivity : AppCompatActivity() {
             val data = savedInstanceState!!.getString("data")!!
             if (data != "") {
                 qrEdit.setText(data)
-                val image = Qr.stringToBitmap(data, qrImageView.width, qrImageView.height)
+                val image = stringToBitmap(data, qrImageView.width, qrImageView.height)
                 qrImageView.setImageBitmap(image)
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("data", qrEdit.text.toString())
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun onGenerate(@Suppress("UNUSED_PARAMETER") view: View) {
         val data = qrEdit.text.toString()
         if (data != "") {
-            val image = Qr.stringToBitmap(data, qrImageView.width, qrImageView.height)
+            val image = stringToBitmap(data, qrImageView.width, qrImageView.height)
             qrImageView.setImageBitmap(image)
         } else {
             qrImageView.setImageBitmap(null)
@@ -51,8 +58,9 @@ class GenerationActivity : AppCompatActivity() {
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString("data", qrEdit.text.toString())
+    private fun stringToBitmap(data: String, width: Int, height: Int): Bitmap {
+        val dimension = 3 * Integer.min(width, height) / 4
+        val encoder = QRGEncoder(data, QRGContents.Type.TEXT, dimension)
+        return encoder.getBitmap(0)
     }
 }
