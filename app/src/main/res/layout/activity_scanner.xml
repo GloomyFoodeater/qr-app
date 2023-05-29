@@ -36,8 +36,10 @@
 
         <Button
             android:id="@+id/actionBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/primary_btn_shape"
             android:onClick="onAction"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/closeBtn"
@@ -45,10 +47,11 @@
 
         <Button
             android:id="@+id/closeBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:onClick="onClose"
             android:text="@string/crossSign"
+            android:background="@drawable/primary_btn_shape"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
